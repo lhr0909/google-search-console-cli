@@ -23,28 +23,25 @@ Use this skill when the task involves any of:
 
 ## Install This CLI
 
-Recommended (`pipx`, global `gsc` command):
+Recommended (`uv`, global `gsc` command):
 
 ```bash
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-pipx install google-search-console-cli
+uv tool install google-search-console-cli
 gsc --version
 ```
 
 From source (development):
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-gsc --help
+uv sync --extra dev
+uv run gsc --help
+uv run pytest
 ```
 
-From source (`pipx`, editable):
+From source (`uv tool`, editable):
 
 ```bash
-pipx install -e /absolute/path/to/google-search-console-cli
+uv tool install --editable /absolute/path/to/google-search-console-cli
 gsc --help
 ```
 

@@ -14,25 +14,26 @@ if [[ ! -f "$CLIENT_SECRET_PATH" ]]; then
   exit 1
 fi
 
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is required for setup. Install it from https://docs.astral.sh/uv/." >&2
+  exit 1
+fi
+
 if [[ "$SKIP_INSTALL" != "--skip-install" ]]; then
-  python3 -m venv .venv
-  # shellcheck disable=SC1091
-  source .venv/bin/activate
-  python -m pip install --upgrade pip
-  python -m pip install -e ".[dev]"
+  uv sync --extra dev
 fi
 
 if [[ ! -x ".venv/bin/gsc" ]]; then
-  echo "Expected .venv/bin/gsc to exist. Did installation fail?" >&2
+  echo "Expected .venv/bin/gsc to exist. Run: uv sync --extra dev" >&2
   exit 1
 fi
 
 echo "Starting OAuth login for gsc..."
-.venv/bin/gsc auth login --client-secret "$CLIENT_SECRET_PATH"
+uv run gsc auth login --client-secret "$CLIENT_SECRET_PATH"
 
 echo
 echo "Setup complete."
 echo "Run commands with:"
-echo "  .venv/bin/gsc site list"
+echo "  uv run gsc site list"
 echo "Optional: set a default site"
-echo "  .venv/bin/gsc config set default-site sc-domain:example.com"
+echo "  uv run gsc config set default-site sc-domain:example.com"

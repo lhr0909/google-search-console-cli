@@ -4,7 +4,7 @@ CLI for Google Search Console using the official Google API Python client.
 
 ## Highlights
 - Native OAuth login: no mandatory `gcloud` setup
-- `pipx`-friendly install (`gsc` available globally)
+- `uv`-friendly install (`gsc` available globally)
 - Site operations: list/get/add
 - Sitemap operations: list/get/submit/delete
 - URL inspection: manual index-status checks for specific pages
@@ -14,19 +14,18 @@ CLI for Google Search Console using the official Google API Python client.
 
 ## Install (Recommended)
 
-Install with `pipx` so `gsc` is available globally on your PATH.
+Install with `uv` so `gsc` is available globally on your PATH.
 
-If you do not have `pipx` yet:
+If you do not have `uv` yet:
 
 ```bash
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Restart your shell, then install:
 
 ```bash
-pipx install google-search-console-cli
+uv tool install google-search-console-cli
 ```
 
 Verify:
@@ -38,43 +37,37 @@ gsc --version
 Upgrade later:
 
 ```bash
-pipx upgrade google-search-console-cli
+uv tool upgrade google-search-console-cli
 ```
 
 Uninstall:
 
 ```bash
-pipx uninstall google-search-console-cli
+uv tool uninstall google-search-console-cli
 ```
 
 ## Install From Source
 
 If you cloned this repository and want to run from source, use one of these options.
 
-Option 1: Local virtualenv (best for development)
+Option 1: Local uv-managed environment (best for development)
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
-
-Fish shell activation:
-
-```fish
-. .venv/bin/activate.fish
+uv sync --extra dev
 ```
 
 Then run:
 
 ```bash
-gsc --help
+uv run gsc --help
+uv run pytest
 ```
 
-Option 2: Install from source with `pipx` (best for day-to-day CLI usage)
+Option 2: Install from source with `uv tool` (best for day-to-day CLI usage)
 
 ```bash
-pipx install -e /absolute/path/to/google-search-console-cli
+uv tool install --editable /absolute/path/to/google-search-console-cli
+gsc --help
 ```
 
 ## OAuth Setup (Recommended)
@@ -187,6 +180,8 @@ If you cloned this repo and want one command setup:
 ./scripts/setup.sh /absolute/path/to/client_secret.json
 ```
 
+The script uses `uv sync --extra dev` and runs the CLI through `uv run`.
+
 ## Credentials and Config Paths
 
 By default:
@@ -249,7 +244,6 @@ The workflow will publish automatically.
 ### Manual Publishing (Fallback)
 
 ```bash
-. .venv/bin/activate.fish
-python -m build
-python -m twine upload dist/*
+uv build
+uvx twine upload dist/*
 ```
