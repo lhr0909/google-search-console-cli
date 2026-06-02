@@ -1,10 +1,14 @@
-# google-search-console-cli
+# google-search-console
 
-CLI for Google Search Console using the official Google API Python client.
+Self-contained agent skill and `uv`-run CLI for Google Search Console.
+
+This folder is designed to be copied into an agent skills directory and recognized automatically via the root `SKILL.md`. You can rename the folder to `google-search-console`; no PyPI or global CLI installation is required.
 
 ## Highlights
+
+- Self-contained skill folder with root `SKILL.md`
+- Commands run through `uv` from the bundled source code
 - Native OAuth login: no mandatory `gcloud` setup
-- `uv`-friendly install (`gsc` available globally)
 - Site operations: list/get/add
 - Sitemap operations: list/get/submit/delete
 - URL inspection: manual index-status checks for specific pages
@@ -12,84 +16,53 @@ CLI for Google Search Console using the official Google API Python client.
 - Output formats: table, json, csv
 - Diagnostics: `gsc doctor`
 
-## Install (Recommended)
+## Prerequisite
 
-Install with `uv` so `gsc` is available globally on your PATH.
-
-If you do not have `uv` yet:
+Install `uv` if it is not already available:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Restart your shell, then install:
+Restart your shell after installing `uv`.
 
-```bash
-uv tool install google-search-console-cli
-```
+## Run Without Installing
 
-Verify:
-
-```bash
-gsc --version
-```
-
-Upgrade later:
-
-```bash
-uv tool upgrade google-search-console-cli
-```
-
-Uninstall:
-
-```bash
-uv tool uninstall google-search-console-cli
-```
-
-## Install From Source
-
-If you cloned this repository and want to run from source, use one of these options.
-
-Option 1: Local uv-managed environment (best for development)
-
-```bash
-uv sync --extra dev
-```
-
-Then run:
+From this folder:
 
 ```bash
 uv run gsc --help
-uv run pytest
+uv run gsc --version
 ```
 
-Option 2: Install from source with `uv tool` (best for day-to-day CLI usage)
+From another working directory, point `uv` at the skill folder:
 
 ```bash
-uv tool install --editable /absolute/path/to/google-search-console-cli
-gsc --help
+uv run --project /absolute/path/to/google-search-console gsc --help
 ```
 
-## OAuth Setup (Recommended)
+Use that same `uv run --project ... gsc` prefix for all commands when you are not already inside the skill folder.
+
+## OAuth Setup
 
 Create a Google OAuth client of type **Desktop app**, then run:
 
 ```bash
-gsc auth login --client-secret /absolute/path/to/client_secret.json
+uv run gsc auth login --client-secret /absolute/path/to/client_secret.json
 ```
 
 Verify:
 
 ```bash
-gsc auth whoami
-gsc doctor
+uv run gsc auth whoami
+uv run gsc doctor
 ```
 
 ## Optional: Set Default Site
 
 ```bash
-gsc config set default-site sc-domain:example.com
-gsc config get default-site
+uv run gsc config set default-site sc-domain:example.com
+uv run gsc config get default-site
 ```
 
 After this, you can omit `--site` in commands that need a property.
@@ -97,37 +70,41 @@ After this, you can omit `--site` in commands that need a property.
 ## Usage
 
 ### Sites
+
 ```bash
-gsc site list
-gsc site get --site sc-domain:example.com
-gsc site add --site sc-domain:example.com
+uv run gsc site list
+uv run gsc site get --site sc-domain:example.com
+uv run gsc site add --site sc-domain:example.com
 ```
 
 ### Sitemaps
+
 ```bash
-gsc sitemap list --site sc-domain:example.com
-gsc sitemap get --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
-gsc sitemap submit --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
-gsc sitemap delete --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
+uv run gsc sitemap list --site sc-domain:example.com
+uv run gsc sitemap get --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
+uv run gsc sitemap submit --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
+uv run gsc sitemap delete --site sc-domain:example.com --feedpath https://example.com/sitemap.xml
 ```
 
 ### URL Inspection
+
 ```bash
-gsc url inspect --site sc-domain:example.com --url https://example.com/page
+uv run gsc url inspect --site sc-domain:example.com --url https://example.com/page
 ```
 
 Get full response in JSON:
 
 ```bash
-gsc url inspect \
+uv run gsc url inspect \
   --site sc-domain:example.com \
   --url https://example.com/page \
   --output json
 ```
 
 ### Analytics
+
 ```bash
-gsc analytics query \
+uv run gsc analytics query \
   --site sc-domain:example.com \
   --start-date 2026-01-01 \
   --end-date 2026-01-31 \
@@ -140,7 +117,7 @@ gsc analytics query \
 Save as CSV:
 
 ```bash
-gsc analytics query \
+uv run gsc analytics query \
   --site sc-domain:example.com \
   --start-date 2026-01-01 \
   --end-date 2026-01-31 \
@@ -172,15 +149,27 @@ Supported operators:
 - `includingRegex`
 - `excludingRegex`
 
-## Convenience Script (Repo Local)
+## Convenience Script
 
-If you cloned this repo and want one command setup:
+Run OAuth setup from this self-contained folder:
 
 ```bash
 ./scripts/setup.sh /absolute/path/to/client_secret.json
 ```
 
-The script uses `uv sync --extra dev` and runs the CLI through `uv run`.
+The script invokes the CLI through `uv run --project <this-folder> gsc`; it does not install a global command.
+
+## Tests
+
+```bash
+uv run --extra dev pytest
+```
+
+From another working directory:
+
+```bash
+uv run --project /absolute/path/to/google-search-console --extra dev pytest
+```
 
 ## Credentials and Config Paths
 
@@ -204,46 +193,9 @@ gcloud auth application-default login \
 ```
 
 ## Notes
+
 - Use Search Console property formats like `sc-domain:example.com` or URL-prefix properties.
 - `site add` requires write scope (`webmasters`).
 - `sitemap submit` and `sitemap delete` require write scope (`webmasters`).
 - `url inspect` uses URL Inspection API for manual status checks only (no general "request indexing" endpoint in Search Console API).
 - `analytics query --aggregation-type byProperty` cannot be combined with `page` grouping/filtering.
-
-## Publishing
-
-### Trusted Publishing via GitHub Actions (Recommended)
-
-This repo includes `.github/workflows/publish.yml` that:
-- builds `sdist` + `wheel`
-- publishes to PyPI using OpenID Connect (no API token needed in GitHub secrets)
-
-To enable it:
-
-1. In PyPI, open project settings for `google-search-console-cli`.
-2. Add a **Trusted Publisher** with:
-   - Owner: `NmadeleiDev`
-   - Repository: `google-search-console-cli`
-   - Workflow name: `publish.yml`
-   - Environment name: `pypi`
-3. In GitHub, keep/create environment `pypi` (optional protection rules as you prefer).
-
-Release flow:
-
-1. Bump version in `pyproject.toml`.
-2. Commit and push.
-3. Create and push a tag like `v0.1.1`:
-
-```bash
-git tag v0.1.1
-git push origin v0.1.1
-```
-
-The workflow will publish automatically.
-
-### Manual Publishing (Fallback)
-
-```bash
-uv build
-uvx twine upload dist/*
-```
