@@ -6,3 +6,5 @@ __pycache__/
 dist/
 build/
 tasks/
+
+client_secret.json
